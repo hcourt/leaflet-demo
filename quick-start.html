@@ -1,0 +1,61 @@
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+  integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+  crossorigin="" />
+
+<!-- Make sure you put this AFTER Leaflet's CSS -->
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+  integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+  crossorigin=""></script>
+
+<!-- #map { height: 180px; } -->
+<!-- 37.7588325,-122.3053471 -->
+<div id="map" style="height: 8.5in;width: 11in;"></div>
+<script>
+  const map = L.map('map').setView([37.7926591, -122.3910996], 10);
+
+  L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+    maxZoom: 18,
+    id: 'mapbox/streets-v11',
+    tileSize: 512,
+    zoomOffset: -1,
+    accessToken: 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SD2WrJ6tFX7QHmA'
+  }).addTo(map);
+
+  const marker = L.marker([37.7792, -122.4199]).addTo(map);
+  const circle = L.circle([37.7792, -122.4199], {
+    color: 'red',
+    fillColor: '#f03',
+    fillOpacity: 0.5,
+    radius: 500
+  }).addTo(map);
+  const polygon = L.polygon([
+    [37.76, -122.442],
+    [37.78, -122.44],
+    [37.77, -122.40]
+  ]).addTo(map);
+
+  marker.bindPopup("<b>Hello world!</b><br>I am a popup.").openPopup();
+  circle.bindPopup("I am a circle.");
+  polygon.bindPopup("I am a polygon.");
+
+  const popup = L.popup()
+    .setLatLng([37.7792, -122.4199])
+    .setContent("I am a standalone popup.")
+    .openOn(map);
+
+  function onMapClick(e) {
+    alert("You clicked the map at " + e.latlng);
+  }
+
+  map.on('click', onMapClick);
+
+  function onMapClick(e) {
+    popup
+      .setLatLng(e.latlng)
+      .setContent("You clicked the map at " + e.latlng.toString())
+      .openOn(map);
+  }
+
+  map.on('click', onMapClick);
+</script>
