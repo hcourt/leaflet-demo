@@ -1,0 +1,129 @@
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+  integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+  crossorigin="" />
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+  integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+  crossorigin=""></script>
+<style>
+  #map {
+    height: 100%;
+    width: 100%;
+  }
+
+  .info {
+    padding: 6px 8px;
+    font: 14px/20px Arial, Helvetica, sans-serif;
+    background: white;
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+  }
+
+  .info h4 {
+    font: 20px/22px Arial, Helvetica, sans-serif;
+    padding: 8px 65px 8px 0px;
+    margin: 0 0 5px;
+    color: #777;
+  }
+
+</style>
+
+<div id="map"></div>
+
+<script type='text/javascript' src='City_of_Oakland_Council_Districts_Oct_2021.geojson.js'></script>
+<script>
+  const mapboxAccessToken = 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SD2WrJ6tFX7QHmA';
+  const map = L.map('map').setView([37.806258, -122.24556], 12);
+
+  L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={mapboxAccessToken}', {
+    mapboxAccessToken,
+    id: 'mapbox/light-v9',
+    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+    tileSize: 512,
+    zoomOffset: -1
+  }).addTo(map);
+
+  let geoJson;
+
+  /** Styling **/
+
+  function getColor(name) {
+    switch (name) {
+      case 'CCD1': return '#8dd3c7';
+      case 'CCD2': return '#ffffb3';
+      case 'CCD3': return '#bebada';
+      case 'CCD4': return '#fb8072';
+      case 'CCD5': return '#80b1d3';
+      case 'CCD6': return '#fdb462';
+      case 'CCD7': return '#b3de69';
+    }
+  }
+
+  function style(feature) {
+    return {
+      weight: 2,
+      opacity: 1,
+      color: 'white',
+      dashArray: '3',
+      fillOpacity: 0.5,
+      fillColor: getColor(feature.properties.NAME),
+    };
+  }
+
+  /** Interaction **/
+
+  function highlightFeature(e) {
+    const layer = e.target;
+
+    layer.setStyle({
+      weight: 5,
+      color: '#666',
+      dashArray: '',
+      fillOpacity: 0.5,
+    });
+
+    if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+      layer.bringToFront();
+    }
+
+    info.update(layer.feature.properties);
+  }
+
+  function resetHighlight(e) {
+    geojson.resetStyle(e.target);
+    info.update();
+  }
+
+  function zoomToFeature(e) {
+    map.fitBounds(e.target.getBounds());
+  }
+
+  function onEachFeature(feature, layer) {
+    layer.on({
+      mouseover: highlightFeature,
+      mouseout: resetHighlight,
+      click: zoomToFeature
+    });
+  }
+
+  geojson = L.geoJson(districts, { style, onEachFeature }).addTo(map);
+
+  const info = L.control();
+
+  info.onAdd = function (map) {
+    this._div = L.DomUtil.create('div', 'info');
+    this.update();
+    return this._div;
+  }
+  info.update = function (props) {
+    this._div.innerHTML = '<h4>City of Oakland</h4>'
+      + (props ? '<b>' + props.FULLNAME + '</b>'
+        + '<br />' + props.COUNCILMEMBER
+        + '<br />' + props.EMAIL : 'Hover over a district');
+  }
+
+  info.addTo(map);
+
+
+
+</script>
